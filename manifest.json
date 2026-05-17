@@ -1,0 +1,28 @@
+{
+  "name": "THAITHINHTV",
+  "short_name": "ThaiThinhTV",
+  "description": "Trực tiếp bóng đá - Live Football Streaming",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#070710",
+  "theme_color": "#070710",
+  "lang": "vi",
+  "categories": ["sports", "entertainment"],
+  "icons": [
+    {
+      "src": "/assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

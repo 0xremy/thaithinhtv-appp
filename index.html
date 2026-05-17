@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="THAITHINHTV - Xem trực tiếp bóng đá miễn phí chất lượng cao. Tổng hợp các trận đấu đang và sắp diễn ra.">
+  <meta name="theme-color" content="#070710">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="THAITHINHTV">
+  <link rel="manifest" href="/manifest.json">
+  <title>THAITHINHTV - Trực Tiếp Bóng Đá</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="assets/logo.png" type="image/png">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* Additional inline styles for index page specifics */
+    .nav-tab .tab-count {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.7);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 12px;
+      margin-left: 6px;
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .nav-tab.active .tab-count {
+      background: rgba(255,255,255,0.25);
+      color: #fff;
+    }
+
+    .refresh-icon {
+      font-size: 14px;
+      display: inline-block;
+    }
+
+    .refresh-btn.loading .refresh-icon {
+      animation: spin 1s linear infinite;
+    }
+
+    .shortcuts-hint {
+      position: fixed;
+      bottom: 16px;
+      right: 24px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.15);
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .shortcuts-hint kbd {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <a href="index.html" class="header__logo" aria-label="THAITHINHTV Trang chủ">
+    <img class="header__logo-img" src="assets/logo.png" alt="Logo" onerror="this.style.display='none'">
+    <span class="header__logo-text">THAITHINHTV</span>
+  </a>
+
+  <nav class="header__nav" aria-label="Bộ lọc trận đấu">
+    <button class="nav-tab active" data-filter="live" id="tab-live" tabindex="0">
+      ⚽ Trực tiếp <span class="tab-count"></span>
+    </button>
+    <button class="nav-tab" data-filter="upcoming" id="tab-upcoming" tabindex="0">
+      📅 Sắp diễn ra <span class="tab-count"></span>
+    </button>
+    <button class="nav-tab" data-filter="ended" id="tab-ended" tabindex="0">
+      🏁 Đã kết thúc <span class="tab-count"></span>
+    </button>
+  </nav>
+
+  <div class="header__time" id="header-time" aria-live="polite">--:--:--</div>
+</header>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+  <div class="section-header">
+    <h1 class="section-title">
+      Danh sách trận đấu
+      <span class="count-badge" id="section-count">0</span>
+    </h1>
+    <button class="refresh-btn" id="refresh-btn" tabindex="0" aria-label="Làm mới danh sách">
+      <span class="refresh-icon">🔄</span>
+      Làm mới
+    </button>
+  </div>
+
+  <div class="matches-container" id="matches-container">
+    <!-- Match cards rendered here by JS -->
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Đang tải trận đấu...</div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ KEYBOARD HINTS ============ -->
+<div class="shortcuts-hint">
+  <kbd>↑↓←→</kbd> Di chuyển &nbsp;
+  <kbd>Enter</kbd> Xem &nbsp;
+  <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Tab
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="js/api.js"></script>
+<script src="js/matches.js"></script>
+
+<script>
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        console.log('[SW] Registered:', reg.scope);
+      }).catch((err) => {
+        console.warn('[SW] Registration failed:', err);
+      });
+    });
+  }
+</script>
+
+</body>
+</html>

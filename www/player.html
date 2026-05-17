@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#000000">
+  <title>Đang xem - THAITHINHTV</title>
+
+  <!-- Favicon -->
+  <link rel="icon" href="assets/logo.png" type="image/png">
+
+  <!-- HLS.js for m3u8 streams -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest/dist/hls.min.js"></script>
+
+  <!-- FLV.js for FLV streams -->
+  <script src="https://cdn.jsdelivr.net/npm/flv.js@latest/dist/flv.min.js"></script>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    body {
+      overflow: hidden;
+      background: #000;
+    }
+
+    .player-page {
+      position: fixed;
+      inset: 0;
+    }
+
+    .player-wrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+
+    #video-player {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      object-fit: contain;
+    }
+
+    /* Loading overlay */
+    .player-loading {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
+      z-index: 5;
+    }
+
+    .player-loading.show {
+      display: flex;
+    }
+
+    .player-loading__spinner {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255,255,255,0.1);
+      border-top-color: #e8203a;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* Error overlay */
+    #player-error {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: rgba(0,0,0,0.85);
+      z-index: 15;
+    }
+
+    /* Controls overlay wrapper */
+    .player-controls-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    .player-controls-hidden .player-controls-overlay {
+      opacity: 0;
+    }
+
+    .player-controls-overlay > * {
+      pointer-events: auto;
+    }
+
+    /* Top bar */
+    .player-topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 32px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.88) 0%, transparent 100%);
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .player-match-meta {
+      flex: 1;
+    }
+
+    /* Bottom channel bar */
+    .channel-panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 20px 32px 28px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.92) 0%, transparent 100%);
+    }
+
+    /* Center play indicator */
+    .play-indicator {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .play-indicator.show {
+      opacity: 1;
+      animation: fadeOut 0.8s ease 0.3s forwards;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; }
+    }
+
+    /* Volume bar */
+    .volume-bar {
+      position: absolute;
+      right: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .volume-bar.show {
+      opacity: 1;
+    }
+
+    .volume-track {
+      width: 6px;
+      height: 120px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .volume-fill {
+      width: 100%;
+      background: var(--gradient-brand);
+      border-radius: 3px;
+      transition: height 0.15s ease;
+    }
+
+    .volume-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.8);
+    }
+  </style>
+</head>
+<body>
+
+<div class="player-page">
+  <div class="player-wrapper" id="player-wrapper">
+
+    <!-- VIDEO ELEMENT -->
+    <video id="video-player"
+           playsinline
+           autoplay
+           preload="auto">
+      Trình duyệt của bạn không hỗ trợ phát video.
+    </video>
+
+    <!-- LOADING -->
+    <div class="player-loading" id="player-loading">
+      <div class="player-loading__spinner"></div>
+    </div>
+
+    <!-- PLAY INDICATOR (flash on play/pause) -->
+    <div class="play-indicator" id="play-indicator">▶</div>
+
+    <!-- ERROR OVERLAY -->
+    <div id="player-error">
+      <div class="player-error__icon">📡</div>
+      <div class="player-error__msg" id="player-error-msg">Không thể tải stream</div>
+      <button class="player-error__retry" id="retry-btn">🔄 Thử lại</button>
+      <a href="index.html" class="player-back-btn" style="margin-top:8px;text-decoration:none;">← Về trang chủ</a>
+    </div>
+
+    <!-- CONTROLS OVERLAY -->
+    <div class="player-controls-overlay" id="controls-overlay">
+
+      <!-- TOP BAR -->
+      <div class="player-topbar">
+        <a href="index.html" class="player-back-btn" id="back-btn" tabindex="0">
+          ← Trang chủ
+        </a>
+
+        <div class="player-match-meta">
+          <div class="player-competition" id="player-competition">Đang tải...</div>
+          <div class="player-teams" id="player-teams-row">
+            <span id="player-home">-</span>
+            <span class="player-score" id="player-score">-</span>
+            <span id="player-away">-</span>
+          </div>
+        </div>
+
+        <div class="player-live-badge" id="player-live-badge" style="display:none;">
+          <span class="dot" style="width:7px;height:7px;border-radius:50%;background:#fff;animation:pulse 1.2s infinite;"></span>
+          LIVE
+        </div>
+      </div>
+
+      <!-- CHANNEL PANEL (bottom) -->
+      <div class="channel-panel">
+        <div class="channel-label">📺 Chọn kênh / nguồn phát</div>
+        <div class="channel-list" id="channel-list">
+          <!-- Channels rendered by JS -->
+        </div>
+      </div>
+
+    </div><!-- /controls-overlay -->
+
+  </div><!-- /player-wrapper -->
+</div><!-- /player-page -->
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- SCRIPTS -->
+<script src="js/api.js"></script>
+<script src="js/player.js"></script>
+
+<script>
+  // Show loading on video buffering
+  const video = document.getElementById('video-player');
+  const loadingOverlay = document.getElementById('player-loading');
+  const playIndicator = document.getElementById('play-indicator');
+
+  video.addEventListener('waiting', () => {
+    loadingOverlay.classList.add('show');
+  });
+  video.addEventListener('playing', () => {
+    loadingOverlay.classList.remove('show');
+  });
+  video.addEventListener('canplay', () => {
+    loadingOverlay.classList.remove('show');
+  });
+
+  // Flash play/pause indicator
+  video.addEventListener('play', () => {
+    playIndicator.textContent = '▶';
+    playIndicator.classList.remove('show');
+    void playIndicator.offsetWidth;
+    playIndicator.classList.add('show');
+  });
+  video.addEventListener('pause', () => {
+    playIndicator.textContent = '⏸';
+    playIndicator.classList.remove('show');
+    void playIndicator.offsetWidth;
+    playIndicator.classList.add('show');
+  });
+
+  // Auto-enter fullscreen on TV if possible
+  document.addEventListener('DOMContentLoaded', () => {
+    // Try fullscreen (will work on most Smart TV browsers)
+    if (document.documentElement.requestFullscreen && /TV|SmartTV|SMART-TV|Tizen|WebOS|HbbTV/i.test(navigator.userAgent)) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  });
+</script>
+
+</body>
+</html>

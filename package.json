@@ -1,0 +1,25 @@
+{
+  "name": "thaithinhtv",
+  "version": "1.0.0",
+  "description": "THAITHINHTV - Trực tiếp bóng đá Smart TV App",
+  "scripts": {
+    "dev": "npx serve . -l 3000 --cors",
+    "start": "npx serve . -l 3000 --cors"
+  },
+  "keywords": [
+    "football",
+    "streaming",
+    "smarttv",
+    "vietnam"
+  ],
+  "author": "THAITHINHTV",
+  "license": "MIT",
+  "devDependencies": {
+    "@capacitor/cli": "^8.3.4",
+    "serve": "^14.2.0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/core": "^8.3.4"
+  }
+}
