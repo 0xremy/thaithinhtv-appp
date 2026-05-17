@@ -165,12 +165,21 @@ function playStream(stream, index) {
     hls = null;
   }
 
-  // Determine stream type
   const isM3U8 = url.includes('.m3u8') || stream.type === 'm3u8';
+  const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform();
 
   if (isM3U8) {
-    if (window.Hls && Hls.isSupported()) {
-      // Use HLS.js
+    // Force native HLS on Capacitor to bypass CORS (native <video> doesn't enforce CORS)
+    // or if HLS.js is not supported.
+    if (isCapacitor || !(window.Hls && Hls.isSupported())) {
+      console.log('[Player] Using native HLS playback');
+      video.src = url;
+      video.play().catch(err => {
+        console.warn('[Player] Autoplay blocked:', err);
+      });
+    } else {
+      console.log('[Player] Using HLS.js');
+      // Use HLS.js for web where CORS proxies or server allows it
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
@@ -203,13 +212,6 @@ function playStream(stream, index) {
           }
         }
       });
-
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      // Native HLS (Safari / Smart TV browsers)
-      video.src = url;
-      video.play().catch(err => console.warn('[Player] Autoplay:', err));
-    } else {
-      tryFallback(stream, index);
     }
   } else if (url.includes('.flv')) {
     // FLV via flv.js
