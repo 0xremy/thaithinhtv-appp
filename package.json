@@ -1,6 +1,6 @@
 {
   "name": "thaithinhtv",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "THAITHINHTV - Trực tiếp bóng đá Smart TV App",
   "scripts": {
     "dev": "npx serve . -l 3000 --cors",

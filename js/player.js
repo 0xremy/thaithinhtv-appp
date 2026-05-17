@@ -166,20 +166,11 @@ function playStream(stream, index) {
   }
 
   const isM3U8 = url.includes('.m3u8') || stream.type === 'm3u8';
-  const isCapacitor = window.Capacitor && window.Capacitor.isNativePlatform();
 
   if (isM3U8) {
-    // Force native HLS on Capacitor to bypass CORS (native <video> doesn't enforce CORS)
-    // or if HLS.js is not supported.
-    if (isCapacitor || !(window.Hls && Hls.isSupported())) {
-      console.log('[Player] Using native HLS playback');
-      video.src = url;
-      video.play().catch(err => {
-        console.warn('[Player] Autoplay blocked:', err);
-      });
-    } else {
+    if (window.Hls && Hls.isSupported()) {
       console.log('[Player] Using HLS.js');
-      // Use HLS.js for web where CORS proxies or server allows it
+      // Use HLS.js for robust playback (handles ABR and chunk errors much better than native WebView)
       hls = new Hls({
         enableWorker: true,
         lowLatencyMode: true,
@@ -196,7 +187,7 @@ function playStream(stream, index) {
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         video.play().catch(err => {
           console.warn('[Player] Autoplay blocked:', err);
-          showToast('Nhấn Enter hoặc click để bắt đầu phát');
+          showToast('Nhấn Play để bắt đầu phát');
         });
       });
 
@@ -212,6 +203,13 @@ function playStream(stream, index) {
           }
         }
       });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      // Native HLS fallback
+      console.log('[Player] Using native HLS playback');
+      video.src = url;
+      video.play().catch(err => console.warn('[Player] Autoplay:', err));
+    } else {
+      tryFallback(stream, index);
     }
   } else if (url.includes('.flv')) {
     // FLV via flv.js
