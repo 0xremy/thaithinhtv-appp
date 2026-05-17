@@ -20,17 +20,40 @@
 
   <style>
     body {
+      background: #0f172a;
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
       overflow: hidden;
-      background: #000;
     }
 
     .player-page {
-      position: fixed;
-      inset: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .player-container {
+      width: 100%;
+      max-width: 1200px;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #000;
+      aspect-ratio: 16 / 9;
     }
 
     .player-wrapper {
-      position: relative;
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       cursor: pointer;
@@ -198,12 +221,15 @@
 <body>
 
 <div class="player-page">
-  <div class="player-wrapper" id="player-wrapper">
+  <!-- Framed container for the video player -->
+  <div class="player-container">
+    <div class="player-wrapper" id="player-wrapper">
 
     <!-- VIDEO ELEMENT -->
     <video id="video-player"
            playsinline
            autoplay
+           muted
            preload="auto">
       Trình duyệt của bạn không hỗ trợ phát video.
     </video>
@@ -258,7 +284,8 @@
 
     </div><!-- /controls-overlay -->
 
-  </div><!-- /player-wrapper -->
+    </div><!-- /player-wrapper -->
+  </div><!-- /player-container -->
 </div><!-- /player-page -->
 
 <!-- TOAST -->

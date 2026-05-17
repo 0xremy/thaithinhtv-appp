@@ -328,24 +328,6 @@ function setupPlayerKeyboard() {
         e.preventDefault();
         togglePlayPause();
         break;
-      case 'ArrowLeft':
-        e.preventDefault();
-        switchChannel(-1);
-        break;
-      case 'ArrowRight':
-        e.preventDefault();
-        switchChannel(1);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        video.volume = Math.min(1, video.volume + 0.1);
-        showToast(`🔊 Âm lượng: ${Math.round(video.volume * 100)}%`);
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        video.volume = Math.max(0, video.volume - 0.1);
-        showToast(`🔊 Âm lượng: ${Math.round(video.volume * 100)}%`);
-        break;
       case 'f':
       case 'F':
         toggleFullscreen();
