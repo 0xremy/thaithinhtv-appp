@@ -84,10 +84,12 @@ function renderMatchInfo() {
   }
 
   const badge = document.getElementById('player-live-badge');
-  if (status === 'live') {
-    badge.style.display = '';
-  } else {
-    badge.style.display = 'none';
+  if (badge) {
+    if (status === 'live') {
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
   }
 
   // Set page title
@@ -269,46 +271,19 @@ function showError(message) {
 }
 
 /**
- * Setup player UI interactions (controls auto-hide, etc.)
+ * Setup player UI interactions
  */
 function setupPlayerUI() {
-  const playerWrapper = document.getElementById('player-wrapper');
-
-  // Show controls on mouse move / touch
-  function showControls() {
-    isControlsVisible = true;
-    playerWrapper.classList.remove('player-controls-hidden');
-
-    clearTimeout(controlsTimeout);
-    controlsTimeout = setTimeout(() => {
-      isControlsVisible = false;
-      playerWrapper.classList.add('player-controls-hidden');
-    }, 4000);
-  }
-
-  playerWrapper.addEventListener('mousemove', showControls);
-  playerWrapper.addEventListener('touchstart', showControls);
-  playerWrapper.addEventListener('click', () => {
-    if (!isControlsVisible) {
-      showControls();
-    } else {
-      togglePlayPause();
-    }
-  });
-
-  // Back button
-  document.getElementById('back-btn').addEventListener('click', () => {
-    goBack();
-  });
-
+  // Back button is handled in HTML, Retry is handled below
+  
   // Retry button
-  document.getElementById('retry-btn').addEventListener('click', () => {
-    const stream = currentMatch.streams?.[currentStreamIndex];
-    if (stream) playStream(stream, currentStreamIndex);
-  });
-
-  // Initial controls auto-hide
-  showControls();
+  const retryBtn = document.getElementById('retry-btn');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', () => {
+      const stream = currentMatch.streams?.[currentStreamIndex];
+      if (stream) playStream(stream, currentStreamIndex);
+    });
+  }
 }
 
 /**
